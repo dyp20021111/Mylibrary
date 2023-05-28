@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssm.dao.UserDao">
+    <!-- 多对多结果映射 -->
+    <resultMap type="user" id="userMap">
+        <id column="userid" property="userid"/>
+        <result column="username" property="username"/>
+        <result column="account" property="account"/>
+        <result column="password" property="password" />
+        <result column="permission" property="permission" />
+        <result column="detail" property="detail"/>
+        <collection property="books" ofType="bookxx">
+            <id column="bookid" property="bookid"/>
+            <result column="bookname" property="bookname"/>
+            <result column="detail" property="detail"/>
+        </collection>
+    </resultMap>
+
+
+    <insert id="addUser" keyProperty="userid">
+        insert into
+            user (userid,username, account, password, permission,detail)
+            value (#{user.userid},#{user.username}, #{user.account}, #{user.password}, #{user.permission},#{user.detail})
+    </insert>
+    <select id="findUserByAccount" resultType="com.ssm.pojo.User">
+        select *
+        from user
+        where account = #{account}
+    </select>
+    <select id="findUserByUid" resultType="com.ssm.pojo.User">
+        select *
+        from user
+        where userid = #{userid}
+    </select>
+    <select id="getUser" resultType="com.ssm.pojo.User">
+        select *
+        from user
+        where account = #{account} and password = #{password}
+    </select>
+
+
+    <select id="listUser" resultType="com.ssm.pojo.User">
+        select *
+        from user
+    </select>
+
+    <update id="UpdateUser" parameterType="User">
+        update user
+        <set>
+            <if test="userid!=null and userid!=''">
+                userid = #{userid},
+            </if>
+            <if test="username!=null and username!=''">
+                username = #{username},
+            </if>
+            <if test="account!=null and account!=''">
+                account = #{account},
+            </if>
+            <if test="password!=null and password!=''">
+                password = #{password},
+            </if>
+            <if test="detail!=null and detail!=''">
+                detail = #{detail},
+            </if>
+
+
+        </set>
+        where userid = #{userid}
+    </update>
+    <select id="listBooksByUserid" resultMap="userMap">
+        select user.*, books.*
+        from user, books, borrow
+        where user.userid = #{userid}
+          and borrow.userid = user.userid
+          and borrow.bookid = books.bookid
+    </select>
+
+    <delete id="deleteUserById" parameterType="int">
+        delete from user where userid = #{userid};
+    </delete>
+
+    <select id="queryuserById" resultType="User">
+        select * from user where userid = #{userid};
+    </select>
+</mapper>
